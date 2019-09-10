@@ -40,7 +40,12 @@ def rotate(phi):
     # T - transformation matrix
 
     #------------------------------------------------------------------#
-    # TODO: Implement transformation matrix for rotation.
+    c = np.cos(phi)
+    s = np.sin(phi)
+
+    T = np.array([[c,-s],[c,s]])
+
+
     #------------------------------------------------------------------#
 
     return T
@@ -55,7 +60,8 @@ def shear(cx, cy):
     # T - transformation matrix
 
     #------------------------------------------------------------------#
-    # TODO: Implement transformation matrix for shear.
+    T = np.array([[1,0],[0,-1]])
+
     #------------------------------------------------------------------#
 
     return T
@@ -75,7 +81,7 @@ def reflect(rx, ry):
         return T
 
     #------------------------------------------------------------------#
-    # TODO: Implement transformation matrix for reflection
+    T = np.array([[1,0],[0,-1]])
     #------------------------------------------------------------------#
 
     return T
