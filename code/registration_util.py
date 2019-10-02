@@ -39,14 +39,16 @@ def t2h(T, t):
     # Convert a 2D transformation matrix to homogeneous form.
     # Input:
     # T - 2D transformation matrix
-    # Xt - 2D translation vector
+    # t - 2D translation vector
     # Output:
     # Th - homogeneous transformation matrix
 
     #------------------------------------------------------------------#
-    # TODO: Implement conversion of a transformation matrix and a translation vector to homogeneous transformation matrix.
-    # remove the 'pass' once implemented
-    pass
+    t = t[np.newaxis, :]
+    Th_1 = np.concatenate((T,t.T),1) #t.T is zelfde als np.transpose(t)
+    Th = np.concatenate((Th_1, np.array([[0,0,1]])),0)
+    return Th
+    
     #------------------------------------------------------------------#
 
 

@@ -46,7 +46,7 @@ def combining_transforms():
     X = util.test_object(1)
 
     #------------------------------------------------------------------#
-    # TODO: Experiment with combining transformation matrices.
+    X_t= reg.reflect(-1,1).dot(X)*reg.rotate(np.pi/2).dot(X)
     #------------------------------------------------------------------#
 
 
@@ -78,7 +78,21 @@ def arbitrary_rotation():
     Xh = util.c2h(X)
 
     #------------------------------------------------------------------#
-    # TODO: TODO: Perform rotation of the test shape around the first vertex
+    #perform rotation around the first vertex
+    phi = 45
+    c = np.cos(phi)
+    s = np.sin(phi)
+    
+    coord_1 = X[:,0] #rotatie om dit punt
+    x_r= coord_1[0]
+    y_r= coord_1[1]
+    
+    T_1 = np.array([[1,0,x_r],[0,1,y_r],[0,0,1]])
+    T_2 = np.array([[c,-s,0],[s,c,0],[0,0,1]])
+    T_3 = np.array([[1,0,-x_r],[0,1,-y_r],[0,0,1]])
+    
+    T = T_1.dot(T_2).dot(T_3)
+    
     #------------------------------------------------------------------#
 
     X_rot = T.dot(Xh)
@@ -136,7 +150,12 @@ def ls_solve_test():
     #------------------------------------------------------------------#
     # TODO: Test your implementation of the ls_solve definition
     # remove the 'pass' once implemented
-    pass
+    A = np.array([[3,4],[5,6],[7,8],[17,10]])
+    b = np.array([1,2,3,4])
+    
+    i = reg.ls_solve(A,b)
+    
+    return i
     #------------------------------------------------------------------#
 
 
@@ -151,7 +170,7 @@ def ls_affine_test():
     T_scale = reg.scale(1.2, 0.9)
     T_shear = reg.shear(0.2, 0.1)
 
-    T = util.t2h(T_rot.dot(T_scale).dot(T_shear), [10, 20])
+    T = util.t2h(T_rot.dot(T_scale).dot(T_shear), np.array([10, 20]))
 
     Xm = T.dot(Xh)
 
@@ -192,6 +211,9 @@ def correlation_test():
 
     #------------------------------------------------------------------#
     # TODO: Implement a few more tests of the correlation definition
+    h = reg.correlation(I,I)
+    k = reg.correlation(I,J)
+    return  h, k
     #------------------------------------------------------------------#
 
     print('Test successful!')
@@ -207,6 +229,12 @@ def mutual_information_test():
 
     #------------------------------------------------------------------#
     # TODO: Implement a few tests of the mutual_information definition
+    x = np.random.randint(255, size=(512, 512)) #random image
+    y = np.random.randint(255, size=(512, 512)) #random image
+    
+    h = reg.joint_histogram(x,y) #joint histogram van x en y
+    g = reg.mutual_information(h) #mutual information van x en y
+    print(MI1)
     #------------------------------------------------------------------#
 
     print('Test successful!')
@@ -223,6 +251,7 @@ def mutual_information_e_test():
     p1 = reg.joint_histogram(I, I)
     MI1 = reg.mutual_information_e(p1)
     MI2 = reg.mutual_information(p1)
+    #print(abs(MI1-MI2))
     assert abs(MI1-MI2) < 10e-3, "Mutual information function with entropy is incorrectly implemented (difference with reference implementation test)"
 
     print('Test successful!')

@@ -40,7 +40,10 @@ def rotate(phi):
     # T - transformation matrix
 
     #------------------------------------------------------------------#
-    # TODO: Implement transformation matrix for rotation.
+    c = np.cos(phi)
+    s = np.sin(phi)
+
+    T = np.array([[c,-s],[s,c]])
     #------------------------------------------------------------------#
 
     return T
@@ -55,7 +58,7 @@ def shear(cx, cy):
     # T - transformation matrix
 
     #------------------------------------------------------------------#
-    # TODO: Implement transformation matrix for shear.
+    T = np.array([[1,cx],[cy,1]])
     #------------------------------------------------------------------#
 
     return T
@@ -75,7 +78,7 @@ def reflect(rx, ry):
         return T
 
     #------------------------------------------------------------------#
-    # TODO: Implement transformation matrix for reflection
+    T = np.array([[-1,0],[0,-1]])
     #------------------------------------------------------------------#
 
     return T
@@ -114,6 +117,10 @@ def image_transform(I, Th,  output_shape=None):
 
     #------------------------------------------------------------------#
     # TODO: Perform inverse coordinates mapping.
+    
+    inverse = np.linalg.inv(Th)
+    Xt = inverse.dot(Xh)
+    
     #------------------------------------------------------------------#
 
     It = ndimage.map_coordinates(I, [Xt[1,:], Xt[0,:]], order=1, mode='constant').reshape(I.shape)
@@ -132,6 +139,9 @@ def ls_solve(A, b):
 
     #------------------------------------------------------------------#
     # TODO: Implement the least-squares solution for w.
+    A_t = A.transpose()
+    h = np.linalg.inv(A_t.dot(A))
+    w = h.dot(A_t).dot(b)
     #------------------------------------------------------------------#
 
     # compute the error
@@ -153,6 +163,22 @@ def ls_affine(X, Xm):
     #------------------------------------------------------------------#
     # TODO: Implement least-squares fitting of an affine transformation.
     # Use the ls_solve() function that you have previously implemented.
+    
+    b = np.transpose(X)
+    b_1 = b[:,0]
+    b_2 = b[:,1]
+    
+    T_1, _ = ls_solve(A,b_1)
+    T_2, _ = ls_solve(A,b_2)
+    
+    T_1 = T_1.transpose()
+    T_2 = T_2.transpose()
+    
+    T = np.array([T_1,T_2])
+    
+    #T = np.eye(3) #matrix 
+    #T[0,:] = T_1 #rij 1
+    #T[1,:] = T_2 #rij 2
     #------------------------------------------------------------------#
 
     return T
@@ -182,6 +208,12 @@ def correlation(I, J):
     #------------------------------------------------------------------#
     # TODO: Implement the computation of the normalized cross-correlation.
     # This can be done with a single line of code, but you can use for-loops instead.
+    a = np.transpose(u)
+    b = np.transpose(v)
+    teller = a.dot(v)
+    noemer = np.sqrt(a.dot(u))*np.sqrt(b.dot(v))
+    
+    CC = teller/noemer
     #------------------------------------------------------------------#
 
     return CC
@@ -232,6 +264,7 @@ def joint_histogram(I, J, num_bins=16, minmax_range=None):
     # intensities in the two images. You need to implement one final
     # step to make p take the form of a probability mass function
     # (p.m.f.).
+    p=p/n
     #------------------------------------------------------------------#
 
     return p
@@ -263,6 +296,8 @@ def mutual_information(p):
     # can use a for-loop instead.
     # HINT: p_I is a column-vector and p_J is a row-vector so their
     # product is a matrix. You can also use the sum() function here.
+    MI = p*np.log(p/(p_I.dot(p_J)))
+    MI = np.sum(MI)
     #------------------------------------------------------------------#
 
     return MI
@@ -282,6 +317,7 @@ def mutual_information_e(p):
     # add a small positive number to the joint histogram to avoid
     # numerical problems (such as division by zero)
     p += EPSILON
+    print(p)
 
     # we can compute the marginal histograms from the joint histogram
     p_I = np.sum(p, axis=1)
@@ -292,9 +328,26 @@ def mutual_information_e(p):
     #------------------------------------------------------------------#
     # TODO: Implement the computation of the mutual information via
     # computation of entropy.
+    a=p_I.transpose()
+    b=p_J.transpose()
+    
+    HI = -a.dot(np.log(p_I))
+    HJ = -p_J.dot(np.log(b))
+    
+    p_HIJ= p.reshape(p.shape[0]*p.shape[1],1)
+    
+    c = p_HIJ.transpose()
+    HIJ = -c.dot(np.log(p_HIJ))
+    
+    MI = HI + HJ -HIJ
+    
     #------------------------------------------------------------------#
-
-    return MI
+    try:
+        mi=MI.item()
+    except:
+        mi=MI
+    
+    return mi
 
 
 # SECTION 4. Towards intensity-based image registration
